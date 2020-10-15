@@ -7,15 +7,14 @@ namespace normativasAPI.Models
 {
     public class Normas
     {
-        public Normas()
-        {
-        }
         [BsonId]
-        public string Id { get; set; }
-        public float Esquema { get; set; }
-        public string Nombre { get; set; }
-        public string Edicion { get; set; }
-        public int Gestion { get; set; }
-        public List<Capitulos> Capitulos { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+        public float esquema { get; set; }
+        public string nombre { get; set; }
+        public string edicion { get; set; }
+        public string descripcion { get; set; }
+        public int gestion { get; set; }
+        //public List<Capitulos> capitulos { get; set; }
     }
 }

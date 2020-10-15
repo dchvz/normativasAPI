@@ -7,14 +7,16 @@ namespace normativasAPI.Models
 {
     public class Articulos
     {
-        public Articulos()
-        {
-        }
-
         [BsonId]
-        public string Id { get; set; }
-        public float Esquema { get; set; }
-        public string Articulo { get; set; }
-        public List<Parrafos> Parrafos { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+        public float esquema { get; set; }
+        public string indice { get; set; }
+        public string articulo { get; set; }
+        public List<Parrafos> parrafos { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string normaId { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string padreId { get; set; }
     }
 }
