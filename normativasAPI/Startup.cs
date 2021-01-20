@@ -28,6 +28,14 @@ namespace normativasAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //--------------------------------------Cors-------------------------------------
+            // permitir cualquier request de cualquier dominio
+            services.AddCors(cors => cors.AddPolicy("All", builder => {
+                builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            }));
+
             // se carga la seccion del base settings
             services.Configure<NormativasDataBaseSettings>(
                 Configuration.GetSection(nameof(NormativasDataBaseSettings)));
@@ -50,7 +58,10 @@ namespace normativasAPI
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
+
+            // se permitira cualquier request de cualquier usuario
+            app.UseCors("All");
 
             app.UseRouting();
 

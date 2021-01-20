@@ -24,11 +24,53 @@ namespace normativasAPI.Controllers
             _normativasContext = normasDB.database.GetCollection<Articulos>(Coleccion);
         }
 
+        // actualiza cambios emergentes, puede cambiar
+        [HttpPut("updateStuff")]
+        public async Task<IActionResult> UpdateStuff()
+        {
+            var articulos = _normativasContext.Find<Articulos>(x => x.articulo.EndsWith(":")).SortBy(x => x.indice).ToList();
+            // si no hay articulos en la norma
+            if (articulos.Count == 0)
+            {
+                return NotFound("No se han encontrado articulos para la norma seleccionada");
+            }
+            List<string> correctos = new List<string>();
+            foreach (var articulo in articulos) {
+                correctos.Add(articulo.articulo.Remove(articulo.articulo.Length - 1));
+            }
+
+            for (int i=0;i< articulos.Count;i++) {
+                articulos[i].articulo = correctos[i];
+                var update = await _normativasContext.ReplaceOneAsync(x => x.id.Equals(articulos[i].id), articulos[i]);
+                if (!update.IsAcknowledged)
+                {
+                    return BadRequest("no se pudo actualizar");
+                }
+            }
+            
+            // se devuelve una lista de articulos si existe
+            return Ok(articulos);
+        }
+
+        [HttpGet("GetChildrenArticles/{article}")]
+        public async Task<IActionResult> GetChildrenArticles(string article)
+        {
+            //x.articulo.Count(puntos => puntos == '.') == 1
+            var articulos = await _normativasContext.Find<Articulos>(x => x.padreId.Equals(article)).ToListAsync();
+            // si no hay articulos en la norma
+            if (articulos.Count == 0)
+            {
+                return NotFound("No se han encontrado articulos para la norma seleccionada");
+            }
+            // se devuelve una lista de articulos si existe
+            return Ok(articulos);
+        }
+
         // devuelve cada articulo de una norma en particular, por Id
         [HttpGet("ArticlesByNormative/{normaId}")]
         public IActionResult GetArticlesPerNormative(string normaId)
         {
-            var articulos = _normativasContext.Find<Articulos>(x => x.normaId == normaId).ToList();
+            var articulos = _normativasContext.Find<Articulos>(x => x.normaId == normaId && x.parrafos.Count>0).SortBy(x=>x.indice).ToList();
             // si no hay articulos en la norma
             if (articulos.Count == 0) {
                 return NotFound("No se han encontrado articulos para la norma seleccionada");
@@ -46,6 +88,20 @@ namespace normativasAPI.Controllers
             if (articulo == null)
             {
                 return NotFound("No se ha encontrado un articulo con el Id: " + id);
+            }
+            // se devuelve el articulo si existe
+            return Ok(articulo);
+        }
+
+        // devuelve un articulo por id
+        [HttpGet("ArticleByIndex/{indice}")]
+        public IActionResult GetByIndex(string indice)
+        {
+            var articulo = _normativasContext.Find<Articulos>(x => x.indice == indice).FirstOrDefault();
+            // si no existe un articulo con ese Id
+            if (articulo == null)
+            {
+                return NotFound("No se ha encontrado un articulo con el indice: " + indice);
             }
             // se devuelve el articulo si existe
             return Ok(articulo);
